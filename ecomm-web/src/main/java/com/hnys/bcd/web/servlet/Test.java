@@ -8,6 +8,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -21,11 +22,22 @@ public class Test extends HttpServlet {
         resp.getWriter().write("Ecomm web Module Test");
 
         try {
-            InitialContext ic = new InitialContext();
-            TestRemote userRemote = (TestRemote) ic.lookup("java:global/user-module-1.0/TestSessionBean");
 
-            String test = userRemote.test();
-            resp.getWriter().write("Result "+test);
+            TestRemote tr;
+            InitialContext ic = new InitialContext();
+            tr = (TestRemote) ic.lookup("java:global/user-module-1.0/TestSessionBean");
+
+//            HttpSession session = req.getSession();
+//            if (session.getAttribute("testBean") == null) {
+//                InitialContext ic = new InitialContext();
+//                tr = (TestRemote) ic.lookup("java:global/user-module-1.0/TestSessionBean");
+//                session.setAttribute("testBean", tr);
+//            }else  {
+//                tr = (TestRemote) session.getAttribute("testBean");
+//            }
+
+            String test = tr.test();
+            resp.getWriter().write("Result:  " + test);
 
         } catch (NamingException e) {
             throw new RuntimeException(e);
