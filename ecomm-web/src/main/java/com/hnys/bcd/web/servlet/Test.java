@@ -24,17 +24,17 @@ public class Test extends HttpServlet {
         try {
 
             TestRemote tr;
-            InitialContext ic = new InitialContext();
-            tr = (TestRemote) ic.lookup("java:global/user-module-1.0/TestSessionBean");
+//            InitialContext ic = new InitialContext();
+//            tr = (TestRemote) ic.lookup("java:global/user-module-1.0/TestSessionBean");
 
-//            HttpSession session = req.getSession();
-//            if (session.getAttribute("testBean") == null) {
-//                InitialContext ic = new InitialContext();
-//                tr = (TestRemote) ic.lookup("java:global/user-module-1.0/TestSessionBean");
-//                session.setAttribute("testBean", tr);
-//            }else  {
-//                tr = (TestRemote) session.getAttribute("testBean");
-//            }
+            HttpSession session = req.getSession();
+            if (session.getAttribute("testBean") == null) {
+                InitialContext ic = new InitialContext();
+                tr = (TestRemote) ic.lookup("java:global/user-module-1.0/TestSessionBean");
+                session.setAttribute("testBean", tr);
+            }else  {
+                tr = (TestRemote) session.getAttribute("testBean");
+            }
 
             String test = tr.test();
             resp.getWriter().write("Result:  " + test);

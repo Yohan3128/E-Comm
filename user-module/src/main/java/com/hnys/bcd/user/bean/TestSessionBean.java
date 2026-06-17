@@ -3,10 +3,7 @@ package com.hnys.bcd.user.bean;
 import com.hnys.bcd.user.remote.TestRemote;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
-import jakarta.ejb.PostActivate;
-import jakarta.ejb.PrePassivate;
-import jakarta.ejb.Stateful;
-import jakarta.ejb.Stateless;
+import jakarta.ejb.*;
 
 @Stateful
 public class TestSessionBean implements TestRemote {
@@ -37,6 +34,7 @@ public class TestSessionBean implements TestRemote {
     }
 
     @Override
+    @Lock(LockType.READ)
     public String test() {
 
         i++;

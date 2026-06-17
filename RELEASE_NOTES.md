@@ -1,39 +1,70 @@
 # GitHub Release Notes
 
-## E-Comm v1.0
+## E-Comm v3.0
 
-Release date: 2026-06-10
+Release date: 2026-06-17
 
 ### Overview
 
-This release introduces the first E-Comm EJB-based application structure, with the main focus on **Stateless Session Beans** and remote access from a web module. The project is organized as a two-module Maven application:
-
-- `user-module`: an EJB module that contains the business components
-- `ecomm-web`: a web module that invokes the EJBs through JNDI lookup
-
-The current implementation is a foundation for enterprise Java development and demonstrates how a web layer can interact with application-scoped stateless services.
+This release extends the E-Comm Jakarta EE application with remote project integration for session beans. It demonstrates how remote clients and the web module can look up and invoke session beans across module boundaries using Jakarta EJB remote interfaces and JNDI.
 
 ### Highlights
 
-- Added `UserSessionBean` as a `@Stateless` EJB implementing the `UserRemote` contract.
-- Added `TestSessionBean` as a `@Stateless` EJB implementing the `TestRemote` contract.
-- Included lifecycle annotations with `@PostConstruct` and `@PreDestroy` in the test bean to demonstrate bean initialization and cleanup.
-- Added a `UserDTO` transfer object for user data exchange between tiers.
-- Added a `Test` servlet in the web module to verify remote EJB lookup and invocation.
-- Configured the project for Java 17 and Jakarta EE 10 APIs.
+- Added remote access guidance for `TestSessionBean` and `UserSessionBean`.
+- Demonstrated servlet-based remote invocation in `ecomm-web` using `TestRemote` and JNDI lookup.
+- Included remote client usage examples in `ecomm-client-app` and `ecomm-client-app-demo`.
+- Documented the `user-module` remote contracts (`TestRemote`, `UserRemote`) for use by remote projects.
+- Showed how the web servlet caches the looked-up stateful bean in `HttpSession` for conversational reuse.
 
 ### Technical Notes
 
-- The EJB module is packaged as `ejb` and generates a client artifact for remote use.
-- The web module is packaged as `war` and depends on the EJB client artifact.
-- The servlet performs a JNDI lookup against the deployed EJB and invokes `TestRemote.test()`.
-- `TestSessionBean.test()` currently includes a short delay to make bean invocation behavior visible during testing.
+- `TestSessionBean` is a `@Stateful` EJB accessible via `TestRemote`.
+- `UserSessionBean` is a `@Stateless` EJB accessible via `UserRemote`.
+- Remote lookup examples use `java:global/user-module-1.0/TestSessionBean` in `ecomm-web/src/main/java/com/hnys/bcd/web/servlet/Test.java`.
+- Client-side examples are present in `ecomm-client-app` and `ecomm-client-app-demo`, showing the IIOP-based remote lookup pattern.
+
+### Verification
+
+- Deploy `user-module` and `ecomm-web`, then request `/test` to confirm remote stateful bean invocation.
+- Build and run the example client apps to verify remote project access patterns when the lookup code is enabled.
+
+### Summary
+
+E-Comm v3.0 documents and demonstrates how to use session beans in remote projects, bridging the `user-module` EJB layer with remote web and Java client consumers.
+
+## E-Comm v1.0
+
+Release date: 2026-06-11
+
+### Overview
+
+This release establishes the first version of the E-Comm Jakarta EE application as a two-module Maven project:
+
+- `user-module`: an EJB module that contains the remote business components
+- `ecomm-web`: a WAR module that looks up and invokes the EJBs from a servlet
+
+The current codebase demonstrates servlet-to-EJB integration, remote contracts, and DTO-based data exchange in a Java 17 and Jakarta EE 10 setup.
+
+### Highlights
+
+- Added `TestSessionBean` as a `@Stateful` Session Bean.
+- Added lifecycle callbacks with `@PostConstruct`, `@PreDestroy`, `@PostActivate`, and `@PrePassivate` to show bean lifecycle behavior.
+- Added a serializable `UserDTO` for transferring user data between tiers.
+- Added a `/test` servlet that performs a JNDI lookup and invokes `TestRemote.test()`.
+- Configured both modules for Java 17 and Jakarta EE 10 APIs.
+
+### Technical Notes
+
+- `user-module` is packaged as `ejb` and configured to generate an EJB client artifact.
+- `ecomm-web` is packaged as `war` and depends on the generated EJB client.
+- The servlet currently looks up `java:global/user-module-1.0/TestSessionBean` directly.
+- `TestSessionBean.test()` increments an instance counter and pauses briefly so invocation flow is visible during testing.
 
 ### Current Behavior
 
-- `UserSessionBean` exposes the remote user service contract and currently returns placeholder data.
-- `TestSessionBean` is used to confirm stateless bean lifecycle and invocation flow.
-- The web endpoint at `/test` writes a simple response and then calls the remote EJB.
+- `UserSessionBean` returns placeholder `UserDTO` instances and an empty user list.
+- `TestSessionBean` preserves conversational state per client and returns a counter-based response string.
+- The `/test` endpoint writes a simple web response and then includes the remote bean result.
 
 ### Build Stack
 
@@ -45,8 +76,8 @@ The current implementation is a foundation for enterprise Java development and d
 
 ### Verification
 
-This release can be validated by building both Maven modules and deploying them into a Jakarta EE-compatible application server. After deployment, the `/test` servlet should confirm that the remote stateless bean is reachable.
+Build both Maven modules and deploy them to a Jakarta EE-compatible application server. After deployment, requesting `/test` should confirm that the remote EJB is reachable and that the stateful bean responds with an incrementing result.
 
 ### Summary
 
-E-Comm v1.0 establishes the base architecture for a Jakarta EE application centered on stateless session beans, remote interfaces, DTO-based data transfer, and servlet-to-EJB integration.
+E-Comm v1.0 provides the base Jakarta EE architecture for remote EJB access from a web layer, with one stateless business bean, one stateful test bean, a shared DTO, and a servlet entry point.
