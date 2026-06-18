@@ -5,7 +5,8 @@ import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import jakarta.ejb.*;
 
-@Stateful
+@Stateful(mappedName = "TestSessionBean")
+//@Startup
 public class TestSessionBean implements TestRemote {
     int i;
 
@@ -33,14 +34,22 @@ public class TestSessionBean implements TestRemote {
         System.out.println("TestSessionBean created" + this);
     }
 
+    @Remove
+    @Override
+    public void remove() {
+        System.out.println("TestSessionBean: removed...");
+    }
+
     @Override
     @Lock(LockType.READ)
     public String test() {
 
         i++;
 
+        System.out.println("TestSessionBean: test...");
+
         try {
-            Thread.sleep(5000);
+            Thread.sleep(100);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
